@@ -6,10 +6,10 @@ import hype.extended.layout.HGridLayout;
 // ******************************************
 // Project Settings
 
-int         SW         = 1080;
-int         SH         = 720;
+int         SW         = 1920;
+int         SH         = 1080;
 color       clrBG            = #111111;
-String      pathDATA         = "../../data/";
+String      music      = "section.mp3";
 
 
 // ******************************************
@@ -47,19 +47,22 @@ HCanvas       canvas;
 
 
 int          colorAlpha        = 10; // give them an alpha value between 0-255;
-int          canvasFade        = 1; // higher value = less sustain of pixels on screen.
-int          poolObjects       = 100;
-int          baseObjectSize    = 5;
+int          canvasFade        = 2; // higher value = less sustain of pixels on screen.
+int          poolObjects       = 20;
+int          baseObjectSize    = 500;
 boolean      audioReactionOn   = true; //switches on/off audio reactivity for debugging and layout
 
 int          spacerX           = 50;
-int          spacerY           = 400;
-PVector      HORangeY          = new PVector(SH/2-spacerY,SH/2+spacerY);//Range of Y axis oscillation (VERTICAL)
-PVector      HORangeX          = new PVector(SW/2-spacerX,SW/2+spacerX);//Range of X axis oscillation (HORIZONTAL)
+int          spacerY           = 10;
+PVector      HORangeX          = new PVector(-spacerX,spacerX);//Range of X axis oscillation (HORIZONTAL)
+PVector      HORangeY          = new PVector(-spacerY,spacerY);//Range of Y axis oscillation (VERTICAL)
+
+
 float        swirlSpeedX       = 0; // higher, the faster 1 max speed ideally. point values are better (0.1 etc); 0 turns off osccilation
 float        swirlSpeedY       = 0; // higher, the faster 0-255;
-int          audioSizeScale    = 300; // Size that each frequency band hit scales the particle to (100 is a good start);
+int          audioSizeScale    = 1500; // Size that each frequency band hit scales the particle to (100 is a good start);
 int          offCentre         = 10; //how much off center the circles land
+int          gridCols          = floor(sqrt(poolObjects));
 // ******************************************
 // 
 
@@ -70,14 +73,15 @@ void settings() {
 
 void setup() {
 	//size(1080,720);
-pixelDensity(displayDensity());
+  pixelDensity(displayDensity());
+  gridFunctions();
 	H.init(this).background(clrBG).use3D(true);
 
   // *****************************
   minim = new Minim(this);
-  myAudio = minim.loadFile("section.mp3");
+  myAudio = minim.loadFile(music);
   //myAudio = minim.loadFile("hld.wav");
-  myAudio.cue(100000);
+  myAudio.cue(40000);
   myAudio.play();
   
   myAudioFFT = new FFT(myAudio.bufferSize(), myAudio.sampleRate());
@@ -94,8 +98,7 @@ pixelDensity(displayDensity());
            .add(#fe8761,4)
            .add(#fed39f,3)
            .add(#f6eec9)
-         
-           ;
+          ;
            
 	canvas = H.add(new HCanvas()).autoClear(false).fade(canvasFade);
 
@@ -105,12 +108,14 @@ pixelDensity(displayDensity());
         .size(baseObjectSize)
         .anchor(0,baseObjectSize)
         .noFill()
-        .noStroke())
+        .noStroke()
+       )
     
 		.layout(new HGridLayout()
-        .startLoc(SW/2,SH/2 )
-        .spacing(baseObjectSize+offCentre, baseObjectSize+offCentre)
-        .cols(10))
+        .startLoc(SW/gridCols/2,SH/gridCols/2)
+        .spacing(SW/gridCols,SH/gridCols)
+        .cols(gridCols)
+       )
         
 		.onCreate(
 			new HCallback() {
@@ -135,7 +140,7 @@ pixelDensity(displayDensity());
             .range(HORangeX.x,HORangeX.y)
             .speed(swirlSpeedX)
             .freq(1)
-            .currentStep(i)
+           // .currentStep(i)
             ;
           }
           
@@ -200,28 +205,86 @@ if(showVisualiser) myAudioDataWidget();
 // Scene switching key bindings
 
 void keyPressed() {
- switch (keyCode) {
-   //SPACEBAR
-  case ENTER:
-  println("enter pressed");
-  for (HDrawable d: pool) {
-      colors = new HColorPool(#E4523B, #0A454D, #3DB296, #ECC417, #E8931E, #E4349C);
-     d.fill( colors.getColor(), colorAlpha );
-  }
-    
-  break;
- }
+
+  switchColor(ceil(random(5)));
 }
 
 
 // ********************************************************************************
 // color sets
 
+void switchColor(int i)
+{
+  
+ switch (i) {
+  case 1:
+     colors = new HColorPool()
+           .add(#E4523B,5)
+           .add(#0A454D,4)
+           .add(#3DB296,3)
+           .add(#ECC417
+           );
+  break;
+  
+    case 2:
+     colors = new HColorPool()
+           .add(#004445,5)
+           .add(#2c786c,4)
+           .add(#faf5e4,3)
+           .add(#f8b400
+           );
+  break;
+  
+    case 3:
+     colors = new HColorPool()
+           .add(#1d4d4f,5)
+           .add(#357376,4)
+           .add(#6ba8a9,3)
+           .add(#e5dfdf)
+           ;
+  break;
+  
+     case 4:
+     colors = new HColorPool()
+           .add(#f54291,5)
+           .add(#ff78ae,4)
+           .add(#fff8cd,3)
+           .add(#ff6f5e)
+           ;
+  break;
+  
+       case 5:
+     colors = new HColorPool()
+           .add(#207561,5)
+           .add(#589167,4)
+           .add(#c5f0a4,3)
+           .add(#da4302)
+           ;
+  break;
+  
+ }
+ 
+ for (HDrawable d: pool)
+ {
+   d.fill(colors.getColor(), colorAlpha);
+}
+}
 
 
 
 // ********************************************************************************
 // AV functions
+
+
+void gridFunctions() {
+  int n = poolObjects;
+  float sqn = sqrt(n);
+  int cols = floor(sqn);
+  float division = SW/cols;
+  println("sq="+sqn);
+  println("cols="+cols);
+  
+}
 
 void myAudioDataUpdate() {
   for (int i = 0; i < myAudioRange; ++i) {

@@ -26,7 +26,7 @@ AudioInput   lineIn;
 boolean     showVisualiser    = false;
 
 int         myAudioRange      = 256;
-int         myAudioMax        = 100;
+int         myAudioMax        = 256;
 
 float       myAudioAmp        = 40.0;
 float       myAudioIndex      = 0.2;
@@ -48,7 +48,7 @@ HCanvas       canvas;
 
 int          colorAlpha        = 10; // give them an alpha value between 0-255;
 int          canvasFade        = 2; // higher value = less sustain of pixels on screen.
-int          poolObjects       = 100;
+int          poolObjects       = 256;
 int          baseObjectSize    = 50;
 boolean      audioReactionOn   = true; //switches on/off audio reactivity for debugging and layout
 

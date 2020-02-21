@@ -6,10 +6,10 @@ import hype.extended.layout.HGridLayout;
 // ******************************************
 // Project Settings
 
-int         SW         = 1920;
-int         SH         = 1080;
+int         SW         = 1080;
+int         SH         = 720;
 color       clrBG            = #111111;
-String      music      = "section.mp3";
+String      music      = "poly.wav";
 
 
 // ******************************************
@@ -48,8 +48,8 @@ HCanvas       canvas;
 
 int          colorAlpha        = 10; // give them an alpha value between 0-255;
 int          canvasFade        = 2; // higher value = less sustain of pixels on screen.
-int          poolObjects       = 20;
-int          baseObjectSize    = 500;
+int          poolObjects       = 100;
+int          baseObjectSize    = 50;
 boolean      audioReactionOn   = true; //switches on/off audio reactivity for debugging and layout
 
 int          spacerX           = 50;
@@ -60,7 +60,7 @@ PVector      HORangeY          = new PVector(-spacerY,spacerY);//Range of Y axis
 
 float        swirlSpeedX       = 0; // higher, the faster 1 max speed ideally. point values are better (0.1 etc); 0 turns off osccilation
 float        swirlSpeedY       = 0; // higher, the faster 0-255;
-int          audioSizeScale    = 1500; // Size that each frequency band hit scales the particle to (100 is a good start);
+int          audioSizeScale    = 200; // Size that each frequency band hit scales the particle to (100 is a good start);
 int          offCentre         = 10; //how much off center the circles land
 int          gridCols          = floor(sqrt(poolObjects));
 // ******************************************
@@ -104,7 +104,7 @@ void setup() {
 
 	pool = new HDrawablePool(poolObjects);
 	pool.autoParent(canvas)
-    .add(new HEllipse()
+    .add(new HRect()
         .size(baseObjectSize)
         .anchor(0,baseObjectSize)
         .noFill()
@@ -189,6 +189,7 @@ for (HDrawable d : pool) {
  
   int fftScaling = (int)map(myAudioData[i], 0, myAudioMax, 1, audioSizeScale);
   d.size(fftScaling);
+  //d.rotation(random(360));
  // d.scale(fftScaling); // this isn't working because it's additive and it's going to keep multiplying itself.
   i++;
 }
@@ -263,7 +264,9 @@ void switchColor(int i)
   break;
   
  }
- 
+ colorAlpha = ceil(random(100));
+ canvasFade = ceil(random(100));
+ canvas.fade(canvasFade);
  for (HDrawable d: pool)
  {
    d.fill(colors.getColor(), colorAlpha);
